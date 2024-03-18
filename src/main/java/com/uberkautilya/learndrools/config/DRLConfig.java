@@ -18,17 +18,14 @@ public class DRLConfig {
     }
 
     public KieContainer getKieContainer() {
-        initializeKieRepository();
-        KieBuilder kieBuilder = kieServices.newKieBuilder(getKieFileSystem()).buildAll();
-        return kieServices.newKieContainer(kieBuilder.getKieModule().getReleaseId());
-    }
-
-    private void initializeKieRepository() {
         final KieRepository repository = kieServices.getRepository();
         repository.addKieModule(repository::getDefaultReleaseId);
+
+        KieFileSystem kieFileSystem = kieServices.newKieFileSystem().write(ResourceFactory.newClassPathResource("rules/order.drl"));
+        KieBuilder kieBuilder = kieServices.newKieBuilder(kieFileSystem).buildAll();
+        ReleaseId releaseId = kieBuilder.getKieModule().getReleaseId();
+
+        return kieServices.newKieContainer(releaseId);
     }
 
-    private KieFileSystem getKieFileSystem() {
-        return kieServices.newKieFileSystem().write(ResourceFactory.newClassPathResource("rules/order.drl"));
-    }
 }
